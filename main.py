@@ -1,12 +1,12 @@
 import requests
 import logging
+import os
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# Функция для получения случайного изображения кошки
 def get_random_cat_image():
     """
     Делает запрос к TheCatAPI для получения случайного изображения кошки.
@@ -38,3 +38,28 @@ def get_random_cat_image():
         # Логируем ошибки, связанные с запросом
         logger.error(f"Произошла ошибка при выполнении запроса: {e}")
         return None
+
+
+def save_image(url, filename):
+    """
+    Скачивает изображение по заданному URL и сохраняет его с указанным именем файла.
+    """
+    try:
+        logger.info(f"Скачивание изображения с {url}")
+        response = requests.get(url)
+        response.raise_for_status()
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        logger.info(f"Изображение сохранено как {filename}")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Не удалось скачать изображение: {e}")
+
+
+if __name__ == "__main__":
+    image_url = get_random_cat_image()
+    if image_url:
+        # Извлекаем имя файла из URL
+        filename = os.path.basename(image_url)
+        save_image(image_url, filename)
+    else:
+        logger.error("Не удалось получить URL изображения")
